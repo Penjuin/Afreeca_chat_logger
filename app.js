@@ -25,7 +25,7 @@ async function writeLog() {
 
     const browser = await puppeteer.launch(
         {
-            headless: true,
+            headless: false,
             executablePath: browserPath,
             defaultViewport: {
                 width: 1920,
@@ -74,14 +74,16 @@ async function writeLog() {
         });
     }, 10000);
 
-    setInterval(async () => {
-        const isLive = await page.$('#chat_area > div.box_Vend');
+    let logger = setInterval(async () => {
+        const isLive = await page.$('#chat_area > div.box_end');
         if (isLive) {
+            console.log('BroadCast is now offline');
             endTimer = setTimeout(() => {
                 browser.close();
                 writeLog();
                 return;
             }, 360000);
+            clearInterval(logger);
         }
         const chatLogs = await page.$$eval('#chat_area > dl', (chatList) => {
             const rawDate = new Date();
@@ -153,6 +155,7 @@ async function getBroadNo() {
         load: true
     });
     let isLive = await page.$('.onAir_box');
+    console.log(isLive);
     if (!isLive) {
         return;
     }
